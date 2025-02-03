@@ -12,6 +12,14 @@
 
 using namespace std;
 
+namespace Colors {
+    constexpr auto RESET = "\033[0m";
+    constexpr auto GREEN = "\033[32m";
+    constexpr auto RED = "\033[31m";
+    constexpr auto CYAN = "\033[36m";
+    constexpr auto YELLOW = "\033[33m";
+}
+
 vector<string> service_files;
 volatile sig_atomic_t shutdown_flag = 0;
 
@@ -53,7 +61,7 @@ vector<Service> get_services(const string& init_dir) {
                 services.emplace_back(num, init_dir + "/" + name);
             }
             catch(...) {
-                cerr << "invalid service file: " << name << endl;
+                cerr <<Colors::RED << "invalid service file: " << name << Colors::RESET <<endl;
             }
         }
         closedir(dir);
@@ -86,24 +94,27 @@ bool execute_service(const string& path, const string& action) {
 }
 
 void start_services(const vector<Service>& services) {
-    cout << "dendro is booting the system." << endl;
+    cout <<endl;
+    cout << Colors::GREEN << "dendro" << Colors::CYAN <<" is booting the system." << Colors::RESET << endl;
+    cout <<endl;
     for(const auto& service : services) {
-        cout << "starting " << service.path << endl;
+        cout << Colors::GREEN << "starting " << service.path << Colors::RESET << endl;
         if(!execute_service(service.path, "start")) {
-            cerr << "failed to start service: " << service.path << endl;
+            cerr << Colors::RED << "failed to start service: " << service.path << Colors::RED << endl;
         }
     }
 }
 
 void stop_services(const vector<Service>& services) {
-    cout << "dendro is shutting down the system..." << endl;
+    cout << Colors::GREEN <<"dendro" << Colors::CYAN <<" is shutting down the system." << Colors::RESET << endl;
     for(const auto & service : std::ranges::reverse_view(services)) {
-        cout << "stopping " << service.path << endl;
+        cout << Colors::GREEN << "stopping " << service.path << Colors::RESET << endl;
         if(!execute_service(service.path, "stop")) {
-            cerr << "failed to stop service: " << service.path << endl;
+            cerr << Colors::RED << "failed to stop service: " << service.path << Colors::RED << endl;
         }
     }
-    cout << "all services stopped. exiting." << endl;
+    cout << Colors::GREEN << "all services stopped. exiting." << endl;
+    cout << "dendro says goodbye!";
 }
 
 void setup_signals() {
